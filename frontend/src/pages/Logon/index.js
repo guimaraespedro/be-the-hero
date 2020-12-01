@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import "./styles.css";
 import { FiLogIn } from "react-icons/fi";
 import logoImg from "../../assets/logo.svg";
 import heroesImg from "../../assets/heroes.png";
-import {Link} from "react-router-dom";
-
+import { Link, useHistory } from "react-router-dom";
+import api from "../../services/api";
 
 const Logon = () => {
+  const [id, setId] = useState("");
+  const history = useHistory();
+
   const changeTheme = () => {
     const applyedColor = document.documentElement.style.getPropertyValue(
       "--background-color"
@@ -18,13 +21,31 @@ const Logon = () => {
     );
   };
 
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    try {
+      const response = await api.post("sessions", { id });
+      console.log(response.data.name);
+      localStorage.setItem("ongId", id);
+      localStorage.setItem("ongName", response.data.name);
+      history.push("/profile");
+    } catch (err) {
+      alert("falha no login");
+    }
+  }
+
   return (
     <div className="logon-container">
       <section className="form">
         <img src={logoImg} alt="Be The Hero" />
-        <form>
+        <form onSubmit={handleLogin}>
           <h1>Faça seu logon</h1>
-          <input type="text" placeholder="Sua ID" />
+          <input
+            placeholder="Sua ID"
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+          />
           <button className="button" type="submit">
             Entrar
           </button>
